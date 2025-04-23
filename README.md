@@ -61,6 +61,6 @@ Os logs dos atendimentos serão salvos automaticamente na subpasta `logs/`.
 - Marcell Dactes Andrade
 - Pedro Vinícius Mota
 
-Desenvolvido como parte da disciplina **Plataforma de Alto Desempenho**.
+Desenvolvido como parte da disciplina **Programação em plataformas de alto desempenho**.
 
 ---
