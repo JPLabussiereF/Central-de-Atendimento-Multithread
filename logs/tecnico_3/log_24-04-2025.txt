@@ -1,0 +1,7 @@
+09:00:58 - Técnico 3 atendendo chamado 3: Problema 3
+09:00:59 - Técnico 3 finalizou chamado 3 em 1s
+09:00:59 - Técnico 3 atendendo chamado 6: Problema 6
+09:01:01 - Técnico 3 finalizou chamado 6 em 2s
+09:01:01 - Técnico 3 atendendo chamado 8: Problema 8
+09:01:04 - Técnico 3 finalizou chamado 8 em 3s
+09:01:05 - Técnico 3 encerrando.
