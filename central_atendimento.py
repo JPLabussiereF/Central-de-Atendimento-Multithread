@@ -4,9 +4,7 @@ import time
 import random
 import os
 from datetime import datetime
-
-# Escolha o modo de execução
-MODO_SEQUENCIAL = True  # Defina como True para executar versão sequencial
+import matplotlib.pyplot as plt
 
 # Fila de chamados
 fila_chamados = queue.Queue()
@@ -69,46 +67,67 @@ def atendimento_sequencial(chamados):
         print(f"{hora()} - Chamado {chamado.id} finalizado em {tempo}s")
     print("\n--- FIM DO ATENDIMENTO SEQUENCIAL ---\n")
 
+# Medir tempo sequencial
+def medir_tempo_sequencial():
+    chamados_seq = [Chamado(i+1, f"Problema {i+1}") for i in range(10)]
+    start = time.time()
+    atendimento_sequencial(chamados_seq)
+    return time.time() - start
+
+# Medir tempo concorrente
+def medir_tempo_concorrente():
+    start = time.time()
+
+    NUM_TECNICOS = 3
+    tecnicos = []
+    for i in range(NUM_TECNICOS):
+        t = threading.Thread(target=tecnico, args=(i+1,))
+        t.start()
+        tecnicos.append(t)
+
+    NUM_CLIENTES = 10
+    clientes = []
+    for i in range(NUM_CLIENTES):
+        c = threading.Thread(target=cliente, args=(i+1,))
+        c.start()
+        clientes.append(c)
+
+    for c in clientes:
+        c.join()
+
+    fila_chamados.join()
+
+    for _ in range(NUM_TECNICOS):
+        fila_chamados.put(None)
+
+    for t in tecnicos:
+        t.join()
+
+    return time.time() - start
+
 # Execução principal
 if __name__ == "__main__":
-    start_time = time.time()
+    print("\nExecutando comparações de desempenho...\n")
 
-    if MODO_SEQUENCIAL:
-        chamados_seq = [Chamado(i+1, f"Problema {i+1}") for i in range(10)]
-        atendimento_sequencial(chamados_seq)
-    else:
-        # Criar técnicos
-        NUM_TECNICOS = 3
-        tecnicos = []
-        for i in range(NUM_TECNICOS):
-            t = threading.Thread(target=tecnico, args=(i+1,))
-            t.start()
-            tecnicos.append(t)
+    tempo_seq = medir_tempo_sequencial()
+    print(f"Tempo sequencial: {tempo_seq:.2f}s\n")
 
-        # Criar clientes (threads)
-        NUM_CLIENTES = 10
-        clientes = []
-        for i in range(NUM_CLIENTES):
-            c = threading.Thread(target=cliente, args=(i+1,))
-            c.start()
-            clientes.append(c)
+    # Resetar fila
+    fila_chamados = queue.Queue()
 
-        for c in clientes:
-            c.join()
+    tempo_conc = medir_tempo_concorrente()
+    print(f"Tempo concorrente: {tempo_conc:.2f}s\n")
 
-        # Esperar fila ser esvaziada
-        fila_chamados.join()
+    # Gráfico comparativo
+    modos = ['Sequencial', 'Concorrente']
+    tempos = [tempo_seq, tempo_conc]
 
-        # Sinalizar término aos técnicos
-        for _ in range(NUM_TECNICOS):
-            fila_chamados.put(None)
+    plt.figure(figsize=(8, 5))
+    plt.bar(modos, tempos, color=['gray', 'green'])
+    plt.title('Comparação de Tempos de Execução')
+    plt.ylabel('Tempo (s)')
+    plt.savefig("grafico_comparativo.png")
+    plt.show()
 
-        # Esperar técnicos terminarem
-        for t in tecnicos:
-            t.join()
-
-        print("Central encerrada.")
-
-    end_time = time.time()
-    tempo_total = end_time - start_time
-    print(f"\nTempo total de execução: {tempo_total:.2f}s")
+    print("Gráfico gerado: grafico_comparativo.png")
+    

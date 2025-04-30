@@ -1,0 +1,17 @@
+# Ambiente virtual
+.venv/
+venv/
+
+# Logs de atendimento
+logs/
+
+# Arquivos gerados
+grafico_comparativo.png
+__pycache__/
+*.pyc
+
+# Configs e IDEs
+.env
+*.log
+.vscode/
+.idea/

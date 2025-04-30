@@ -11,55 +11,108 @@ Demonstrar o uso de **multithreading** em Python em um ambiente simulado de aten
 - Processamento simultâneo de chamados
 - Fila segura entre threads
 - Geração de logs individuais para cada técnico
-- Organização de arquivos por técnico e por data
+- Comparação entre atendimento sequencial e concorrente
+- Geração de gráfico de desempenho
 
 ---
 
 ## 📁 Estrutura do Projeto
 
 ```
-├── central_atendimento.py     # Arquivo principal do projeto
-└── logs/                      # Subpasta gerada automaticamente com os logs
+├── central_atendimento.py       # Código principal
+├── .env                         # Variáveis de ambiente (opcional)
+├── .gitignore                   # Ignora ambiente virtual, logs e arquivos gerados
+├── requirements.txt             # Dependências do projeto
+├── grafico_comparativo.png      # Gráfico gerado automaticamente
+└── logs/                        # Subpasta gerada automaticamente com os logs
     ├── tecnico_1/
     │   └── log_DD-MM-YYYY.txt
     ├── tecnico_2/
-    │   └── log_DD-MM-YYYY.txt
     └── tecnico_3/
-        └── log_DD-MM-YYYY.txt
 ```
-
-Cada técnico possui uma pasta própria dentro da pasta `logs/`, e nela são criados os arquivos de log do atendimento com base na **data atual**.
 
 ---
 
 ## ▶️ Como Executar
 
-1. Certifique-se de ter o **Python 3 instalado**.
-2. Salve o código no arquivo `central_atendimento.py`.
-3. Execute o script:
-   ```bash
-   python central_atendimento.py
-   ```
+### 1. Clone o repositório e entre na pasta
 
-Os logs dos atendimentos serão salvos automaticamente na subpasta `logs/`.
+```bash
+git clone <URL-do-seu-repositório>
+cd central-de-atendimento
+```
+
+### 2. Crie e ative o ambiente virtual
+
+```bash
+# Windows
+python -m venv .venv
+.venv\Scripts\activate
+
+# Linux/macOS
+python3 -m venv .venv
+source .venv/bin/activate
+```
+
+### 3. Instale as dependências
+
+```bash
+pip install -r requirements.txt
+```
+
+> Se ainda não existir, você pode criar o arquivo `requirements.txt` com:
+> `pip freeze > requirements.txt`
+
+---
+
+## ⚙️ Arquivo `.env` (opcional)
+
+Você pode configurar variáveis como número de técnicos/clientes no arquivo `.env`:
+
+```env
+NUM_TECNICOS=3
+NUM_CLIENTES=10
+```
+
+---
+
+## 🧪 Comparação de Desempenho
+
+O script executa **modo sequencial** e **modo concorrente** automaticamente, medindo o tempo de execução de ambos e gerando um gráfico.
+
+### 🔽 Exemplo de saída:
+
+```
+Executando comparações de desempenho...
+
+Tempo sequencial: 20.13s
+Tempo concorrente: 6.25s
+
+Gráfico gerado: grafico_comparativo.png
+```
+
+### 📊 Gráfico gerado:
+
+![grafico_comparativo.png](grafico_comparativo.png)
 
 ---
 
 ## 📌 Tecnologias utilizadas
 
 - Python 3
-- Módulo `threading`
-- Módulo `queue`
-- Manipulação de arquivos e diretórios com `os`
-- `datetime` para data e hora dos logs
+- `threading`, `queue`
+- `matplotlib` para gráficos
+- `os`, `datetime`, `random`
+- `.env` com `python-dotenv` (opcional)
 
 ---
 
 ## ✍️ Autores
-- João Pedro Labussiere
-- Leonardo Vasconcellos
-- Marcell Dactes Andrade
-- Pedro Vinícius Mota
+
+- João Pedro Labussiere  
+- Leonardo Vasconcellos  
+- Marcell Dactes Andrade  
+- Pedro Vinícius Mota  
 
 Desenvolvido como parte da disciplina **Programação em plataformas de alto desempenho**.
 
