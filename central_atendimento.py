@@ -5,6 +5,9 @@ import random
 import os
 from datetime import datetime
 
+# Escolha o modo de execução
+MODO_SEQUENCIAL = True  # Defina como True para executar versão sequencial
+
 # Fila de chamados
 fila_chamados = queue.Queue()
 
@@ -14,17 +17,17 @@ class Chamado:
         self.id = id
         self.descricao = descricao
 
-# Função do técnico com logs organizados em logs/tecnico_X/
+# Utilitário para hora formatada
+def hora():
+    return datetime.now().strftime("%H:%M:%S")
+
+# Função do técnico (thread)
 def tecnico(id_tecnico):
     data_hoje = datetime.now().strftime("%d-%m-%Y")
-
-    # Caminho da pasta base (onde está o script)
     pasta_base = os.getcwd()
     pasta_logs = os.path.join(pasta_base, "logs")
     pasta_tecnico = os.path.join(pasta_logs, f"tecnico_{id_tecnico}")
-
-    os.makedirs(pasta_tecnico, exist_ok=True)  # Cria todas as pastas se não existirem
-
+    os.makedirs(pasta_tecnico, exist_ok=True)
     caminho_log = os.path.join(pasta_tecnico, f"log_{data_hoje}.txt")
 
     with open(caminho_log, "a") as log_file:
@@ -49,34 +52,63 @@ def tecnico(id_tecnico):
 
             fila_chamados.task_done()
 
-# Utilitário para hora formatada
-def hora():
-    return datetime.now().strftime("%H:%M:%S")
-
-# Criar técnicos
-NUM_TECNICOS = 3
-tecnicos = []
-for i in range(NUM_TECNICOS):
-    t = threading.Thread(target=tecnico, args=(i+1,))
-    t.start()
-    tecnicos.append(t)
-
-# Criar chamados
-for i in range(10):
-    chamado = Chamado(i+1, f"Problema {i+1}")
+# Função do cliente (thread)
+def cliente(id_cliente):
+    chamado = Chamado(id_cliente, f"Problema {id_cliente}")
+    print(f"{hora()} - Cliente {id_cliente} criou um chamado.")
     fila_chamados.put(chamado)
-    print(f"{hora()} - Chamado {chamado.id} criado.")
     time.sleep(random.uniform(0.1, 0.5))
 
-# Aguardar fila
-fila_chamados.join()
+# Versão sequencial
+def atendimento_sequencial(chamados):
+    print("\n--- INÍCIO DO ATENDIMENTO SEQUENCIAL ---\n")
+    for chamado in chamados:
+        print(f"{hora()} - Técnico único atendendo chamado {chamado.id}: {chamado.descricao}")
+        tempo = random.randint(1, 3)
+        time.sleep(tempo)
+        print(f"{hora()} - Chamado {chamado.id} finalizado em {tempo}s")
+    print("\n--- FIM DO ATENDIMENTO SEQUENCIAL ---\n")
 
-# Enviar sinal de parada
-for _ in range(NUM_TECNICOS):
-    fila_chamados.put(None)
+# Execução principal
+if __name__ == "__main__":
+    start_time = time.time()
 
-# Esperar todos finalizarem
-for t in tecnicos:
-    t.join()
+    if MODO_SEQUENCIAL:
+        chamados_seq = [Chamado(i+1, f"Problema {i+1}") for i in range(10)]
+        atendimento_sequencial(chamados_seq)
+    else:
+        # Criar técnicos
+        NUM_TECNICOS = 3
+        tecnicos = []
+        for i in range(NUM_TECNICOS):
+            t = threading.Thread(target=tecnico, args=(i+1,))
+            t.start()
+            tecnicos.append(t)
 
-print("Central encerrada.")
+        # Criar clientes (threads)
+        NUM_CLIENTES = 10
+        clientes = []
+        for i in range(NUM_CLIENTES):
+            c = threading.Thread(target=cliente, args=(i+1,))
+            c.start()
+            clientes.append(c)
+
+        for c in clientes:
+            c.join()
+
+        # Esperar fila ser esvaziada
+        fila_chamados.join()
+
+        # Sinalizar término aos técnicos
+        for _ in range(NUM_TECNICOS):
+            fila_chamados.put(None)
+
+        # Esperar técnicos terminarem
+        for t in tecnicos:
+            t.join()
+
+        print("Central encerrada.")
+
+    end_time = time.time()
+    tempo_total = end_time - start_time
+    print(f"\nTempo total de execução: {tempo_total:.2f}s")
