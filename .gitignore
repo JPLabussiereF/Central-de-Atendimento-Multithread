@@ -6,7 +6,6 @@ venv/
 logs/
 
 # Arquivos gerados
-grafico_comparativo.png
 __pycache__/
 *.pyc
 
